@@ -3,5 +3,7 @@
 
 <font color="red">unfinished project</font>
 
-todo
-- [ ] read the config file  
+
+todo list
+- [ ] read config file
+- [ ] open default page
