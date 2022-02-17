@@ -7,5 +7,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
     command::commands::deal_args(&args);
     println!("process continue...");
-    // config.clone();
+    let _config = config::configs::deal_config();
+
+    
 }

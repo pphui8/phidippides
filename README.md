@@ -6,5 +6,6 @@
 
 
 todo list
-- [ ] read config file
+- [x] read config file
 - [ ] open default page
+- [ ] build the frame
