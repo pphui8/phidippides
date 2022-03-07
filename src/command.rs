@@ -1,5 +1,9 @@
-//! this mod is for recive args and deal with it
+//! crate/src/command.rs
 //! 
+//! 接收程序启动的参数并处理
+//! 
+//! # Warning!!!
+//! # !!!注意，程序运行至此包后不会继续执行
 
 pub mod commands {
     use std::process;
@@ -17,6 +21,7 @@ pub mod commands {
         option: Options,
     }
 
+    /// 处理参数函数
     pub fn deal_args(args: &[String]) {
         let mut res = Configs {
             version: String::from("1.0"),
@@ -36,10 +41,11 @@ pub mod commands {
                 Options::Filepath => { println!("{}", res.file_path) }
                 _ => { print_help(&res); }
             }
-            process::exit(1);
+            process::exit(0);
         }
     }
 
+    /// 输出可选参数
     fn print_help(configs: &Configs) {
         println!("phidippides version: phidippides/{}", configs.version);
         println!("Usage: phid [option]");
