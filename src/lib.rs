@@ -1,5 +1,3 @@
-// #[macro_use]
-// mod command;
-// mod config;mod config;
-// mod config;
-// mod command;
+pub mod server;
+pub mod command;
+pub mod config;

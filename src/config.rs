@@ -1,7 +1,7 @@
 //! crate/src/config.rs
 //! 
 //! 配置文件处理包
-//! 配置文件路径: /config.toml
+//! 配置文件路径: phid/config.toml
 
 pub mod configs {
     use std::fs::{OpenOptions, File};
@@ -22,10 +22,18 @@ pub mod configs {
         port: Option<u64>,
         root: Option<String>,
     }
+
+    /// 处理config.toml的启动函数
+    /// ### Errors
+    /// 1. 无法找到文件
+    /// 2. 无读取权限
     pub fn deal_config() -> Config {
         let mut file = OpenOptions::new()
             .read(true)
-            .open("config.toml").unwrap();
+            .open("config.toml").unwrap_or_else( |_| {
+                eprint!("failed to open the file: ");
+                process::exit(1);
+            });
         read_file_to_toml(&mut file)
     }
 
@@ -38,13 +46,13 @@ pub mod configs {
     fn read_file_to_toml(file: &mut File) -> Config {
         let mut buf = String::new();
         file.read_to_string(&mut buf).unwrap_or_else( |_| {
-            eprintln!("fail to read the file");
-            process::exit(0);
+            eprintln!("fail to read the file: ");
+            process::exit(1);
         });
         let res: Config = toml::from_str(buf.trim()).unwrap_or_else(|_| {
             eprintln!("fail to trans file into toml file");
-            eprintln!("please check out the formal of config file");
-            process::exit(0);
+            eprintln!("please check out the formal of config file: ");
+            process::exit(1);
         });
         // println!("{:?}", res);
         res
