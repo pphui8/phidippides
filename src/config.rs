@@ -9,18 +9,19 @@ pub mod configs {
     use serde::Deserialize;
     use std::process;
 
-    #[derive(Debug, Deserialize)]
+    #[derive(Debug, Deserialize, PartialEq)]
     #[allow(dead_code)]
     pub struct Config {
         server: Server,
     }
 
-    #[derive(Debug, Deserialize)]
+    #[derive(Debug, Deserialize, PartialEq)]
     #[allow(dead_code)]
     pub struct Server {
         ip: Option<String>,
         port: Option<u64>,
         root: Option<String>,
+        server_name: Option<String>
     }
 
     /// 处理config.toml的启动函数
@@ -56,5 +57,17 @@ pub mod configs {
         });
         // println!("{:?}", res);
         res
+    }
+}
+
+#[cfg(test)]
+mod config_tests {
+    use super::configs::*;
+
+    #[test]
+    fn test_api() {
+        let expect_config = deal_config();
+        println!("{:?}", expect_config);
+        assert_eq!(expect_config, deal_config());
     }
 }

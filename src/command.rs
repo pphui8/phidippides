@@ -56,3 +56,14 @@ pub mod commands {
     }
 
 }
+
+#[cfg(test)]
+mod command_test {
+    use super::commands::deal_args;
+    #[test]
+    fn test_api() {
+        let test_args = [String::from("phid"), String::from("help")];
+        println!("test command output:");
+        deal_args(&test_args);
+    }
+}
