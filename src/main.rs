@@ -18,7 +18,6 @@ fn main() {
     let config = config::configs::deal_config();
     println!("{:?}", config);
     
-
     // 开启服务
     server::server::server_start().unwrap();
 }

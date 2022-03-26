@@ -6,8 +6,10 @@ pub mod server {
     use rocket::{get, post, catch, catchers};
     use rocket::routes;
     use rocket::serde::json::serde_json::json;
+    use rocket::serde::json::serde_json::to_string;
     use rocket::serde::{Serialize, Deserialize};
     use rocket::serde::json::{Json, Value};
+    use super::super::database;
 
     #[derive(Serialize, Deserialize, Clone, Debug)]
     #[serde(crate = "rocket::serde")]
@@ -27,11 +29,22 @@ pub mod server {
         })
     }
 
+    /// 获取 blog 目录
+    #[get("/")]
+    async fn get_index() -> Value {
+        let res = database::database::get_index();
+        json!({
+            "status": 200,
+            "index": to_string(&res).unwrap()
+        })
+    }
+
     #[get("/<blog_name>")]
     async fn get_blog(blog_name: String) -> Value {
+        let res: String = database::database::get_blog(blog_name);
         json!({
-            "blog_name": blog_name,
-            "value": "hello world"
+            "status": 200,
+            "blog_root": to_string(&res).unwrap()
         })
     }
 
@@ -77,11 +90,11 @@ pub mod server {
             // get routers
             .mount("/", routes![index])
             .mount("/blog", routes![get_blog])
+            .mount("/index", routes![get_index])
             // post routers
             .mount("/addblog", routes![add_blog])
             // cathers
-            .register("/", catchers![not_fount])
-            .register("/addblog", catchers![unprocessable_entity, bad_request])
+            .register("/", catchers![not_fount, unprocessable_entity, bad_request])
             .launch()
             .await?;
         Ok(())
