@@ -1,7 +1,7 @@
 # <font color="red">unfinished project</font>
 
 # phidippides
-> a light weihted web server based on rust  
+> backend of huihuiblog
 
 
 

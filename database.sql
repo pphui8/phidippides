@@ -4,7 +4,7 @@ use mylog;
 
 CREATE TABLE IF NOT EXISTS `blog`(
    `id` INT UNSIGNED AUTO_INCREMENT,
-   `name` VARCHAR(128) NOT NULL,
+   `name` VARCHAR(128) NOT NULL UNIQUE,
    `descript` VARCHAR(256) NOT NULL,
    `article` VARCHAR(256),
    PRIMARY KEY ( `id` )
@@ -12,6 +12,12 @@ CREATE TABLE IF NOT EXISTS `blog`(
 
 INSERT INTO blog (name, descript,  article)
 VALUES ('pphui8', 'hello world', 'https://api.pphui8.me');
+
+delete from blog
+where name="aaa";
+
+-- delete from blog
+-- where name="test";
 
 CREATE TABLE IF NOT EXISTS `blog_comment`(
    `id` VARCHAR(50),

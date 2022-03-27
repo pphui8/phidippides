@@ -13,11 +13,11 @@ pub mod server {
 
     #[derive(Serialize, Deserialize, Clone, Debug)]
     #[serde(crate = "rocket::serde")]
-    struct Blog {
-        id: usize,
-        blog_name: String,
-        desc: String,
-        value: String,
+    pub struct Blog {
+        pub id: usize,
+        pub blog_name: String,
+        pub desc: String,
+        pub value: String,
         // comments: Vec<comment>
     }
 
@@ -34,7 +34,6 @@ pub mod server {
     async fn get_index() -> Value {
         let res = database::database::get_index();
         json!({
-            "status": 200,
             "index": to_string(&res).unwrap()
         })
     }
@@ -48,13 +47,34 @@ pub mod server {
         })
     }
 
+    #[get("/<blog_name>")]
+    async fn del_blog(blog_name: String) -> Value {
+        let res: String = database::database::delete_blog(blog_name);
+        if res {
+            json!({
+                "status": "success"
+            })
+        } else {
+            json!({
+                "status": "failed"
+            })
+        }
+    }
+
     #[post("/", format = "json", data = "<blog>")]
     async fn add_blog(blog: Json<Blog>) -> Value {
         let recv = blog.into_inner();
-        println!("{:?}", recv);
-        json!({
-            "status": "success"
-        })
+        let res = database::database::add_blog(recv);
+        if res {
+            json!({
+                "status": "success"
+            })
+        } else {
+            json!({
+                "status": "failed"
+            })
+        }
+        
     }
 
     /// 404 处理函数
@@ -63,6 +83,15 @@ pub mod server {
         json!({
             "status": 404,
             "error": "not found"
+        })
+    }
+
+    /// 404 处理函数
+    #[catch(500)]
+    async fn internal_server_error() -> Value {
+        json!({
+            "status": 500,
+            "error": "blog not found"
         })
     }
 
@@ -89,12 +118,13 @@ pub mod server {
         rocket::build()
             // get routers
             .mount("/", routes![index])
-            .mount("/blog", routes![get_blog])
             .mount("/index", routes![get_index])
+            .mount("/blog", routes![get_blog])
+            .mount("/delblog", routes![del_blog])
             // post routers
             .mount("/addblog", routes![add_blog])
             // cathers
-            .register("/", catchers![not_fount, unprocessable_entity, bad_request])
+            .register("/", catchers![not_fount, unprocessable_entity, bad_request, internal_server_error])
             .launch()
             .await?;
         Ok(())
