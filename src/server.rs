@@ -14,7 +14,7 @@ pub mod server {
     #[derive(Serialize, Deserialize, Clone, Debug)]
     #[serde(crate = "rocket::serde")]
     pub struct Blog {
-        pub id: usize,
+        pub token: String,
         pub blog_name: String,
         pub desc: String,
         pub value: String,
@@ -49,7 +49,7 @@ pub mod server {
 
     #[get("/<blog_name>")]
     async fn del_blog(blog_name: String) -> Value {
-        let res: String = database::database::delete_blog(blog_name);
+        let res = database::database::delete_blog(blog_name);
         if res {
             json!({
                 "status": "success"
@@ -61,9 +61,23 @@ pub mod server {
         }
     }
 
+    #[get("/")]
+    async fn get_comment() -> Value {
+        let res = database::database::get_comment();
+        json!({
+            "index": to_string(&res).unwrap()
+        })
+    }
+
     #[post("/", format = "json", data = "<blog>")]
     async fn add_blog(blog: Json<Blog>) -> Value {
         let recv = blog.into_inner();
+        if recv.token != String::from("pphui8")  {
+            return json!({
+                "status": "failed",
+                "error": "failed to add blog"
+            })
+        }
         let res = database::database::add_blog(recv);
         if res {
             json!({
@@ -121,6 +135,7 @@ pub mod server {
             .mount("/index", routes![get_index])
             .mount("/blog", routes![get_blog])
             .mount("/delblog", routes![del_blog])
+            .mount("/comment", routes![get_comment])
             // post routers
             .mount("/addblog", routes![add_blog])
             // cathers

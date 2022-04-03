@@ -1,34 +1,34 @@
 -- ALTER USER 'root'@'localhost' IDENTIFIED BY '123212321';
+-- drop database myblog;
 CREATE DATABASE myblog;
-use mylog;
+use myblog;
 
 CREATE TABLE IF NOT EXISTS `blog`(
    `id` INT UNSIGNED AUTO_INCREMENT,
-   `name` VARCHAR(128) NOT NULL UNIQUE,
+   `name` VARCHAR(128) NOT NULL,
    `descript` VARCHAR(256) NOT NULL,
    `article` VARCHAR(256),
+   `tag` VARCHAR(128),
    PRIMARY KEY ( `id` )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO blog (name, descript,  article)
-VALUES ('pphui8', 'hello world', 'https://api.pphui8.me');
+INSERT INTO blog (name, descript, article, tag)
+VALUES ('pphui8', 'Ciallo～(∠・ω< )⌒★ ', 'pphui8', 'test');
 
-delete from blog
-where name="aaa";
+INSERT INTO blog (name, descript, article, tag)
+VALUES ('前端学习笔记', '我的前端学习笔记，从html、css、js到jquery、react，写得比较乱哈。。（学的也比较乱）', 'HTML_study_note', 'study note');
 
 -- delete from blog
--- where name="test";
+-- where name="aaa";
 
-CREATE TABLE IF NOT EXISTS `blog_comment`(
-   `id` VARCHAR(50),
-   `blog_id` INT UNSIGNED NOT NULL,
-   `value` VARCHAR(256) NOT NULL,
-   PRIMARY KEY ( `id` ),
-   FOREIGN KEY blog_comment(blog_id)
-   REFERENCES blog(id)
-   ON UPDATE CASCADE
-   ON DELETE RESTRICT
+CREATE TABLE IF NOT EXISTS `comment`(
+   `id` INT UNSIGNED AUTO_INCREMENT,
+   `username` VARCHAR(128),
+   `profile` VARCHAR(128),
+   `mail` VARCHAR(128),
+   `value` VARCHAR(256),
+   PRIMARY KEY ( `id` )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO blog_comment (id, blog_id,  value)
-VALUES (UUID(), 1, 'hello world');
+INSERT INTO comment (username, profile, mail, value)
+VALUES ('pphui8', '1292750686', 'pphui8@qq.com', 'comment test');
