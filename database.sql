@@ -16,7 +16,7 @@ INSERT INTO blog (name, descript, article, tag)
 VALUES ('pphui8', 'Ciallo～(∠・ω< )⌒★ ', 'pphui8', 'test');
 
 INSERT INTO blog (name, descript, article, tag)
-VALUES ('前端学习笔记', '我的前端学习笔记，从html、css、js到jquery、react，写得比较乱哈。。（学的也比较乱）', 'HTML_study_note', 'study note');
+VALUES ('前端学习笔记', '我的前端学习笔记，从html、css、js到jquery、react，写得比较乱哈。。（学的也比较乱）', 'HTML_study_note', 'note');
 
 -- delete from blog
 -- where name="aaa";
@@ -24,11 +24,10 @@ VALUES ('前端学习笔记', '我的前端学习笔记，从html、css、js到j
 CREATE TABLE IF NOT EXISTS `comment`(
    `id` INT UNSIGNED AUTO_INCREMENT,
    `username` VARCHAR(128),
-   `profile` VARCHAR(128),
-   `mail` VARCHAR(128),
+   `url` VARCHAR(256),
    `value` VARCHAR(256),
    PRIMARY KEY ( `id` )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO comment (username, profile, mail, value)
-VALUES ('pphui8', '1292750686', 'pphui8@qq.com', 'comment test');
+INSERT INTO comment (username, url, value)
+VALUES ('pphui8', 'pphui8.me', 'comment test');

@@ -13,15 +13,23 @@ pub mod database {
         id: usize,
         name: String,
         descript: String,
+        tag: String,
     }
 
     #[derive(Serialize, Debug)]
     pub struct Comment {
         id: usize,
         username: String,
-        profile: String,
-        mail: String,
+        url: String,
         value: String,
+    }
+
+    #[derive(Serialize, Debug)]
+    pub struct Tags {
+        test: usize,
+        note: usize,
+        blog: usize,
+        code: usize,
     }
 
     /// 获取 blog 目录
@@ -31,13 +39,13 @@ pub mod database {
         let pool = Pool::new(blog_url).unwrap();
         let mut conn = pool.get_conn().unwrap();
         // 查询
-        // let res: Vec<(String, String)> = conn.query("select id, name, descript from blog order by id").unwrap();
         let res = conn.query_map(
-            "select id, name, descript from blog order by id",
-            |(id, name, descript)| Index {
+            "select id, name, descript, tag from blog order by id",
+            |(id, name, descript, tag)| Index {
                 id,
                 name,
                 descript,
+                tag,
             },
         ).expect("Query failed.");
         res
@@ -67,13 +75,15 @@ pub mod database {
         let mut conn = pool.get_conn().unwrap();
         // 添加
         let mut query = String::new();
-        query.push_str("INSERT INTO blog (name, descript, article)\n");
+        query.push_str("INSERT INTO blog (name, descript, article, tag)\n");
         query.push_str("VALUES ('");
         query.push_str(&blog.blog_name);
         query.push_str("', '");
         query.push_str(&blog.desc);
         query.push_str("', '");
         query.push_str(&blog.value);
+        query.push_str("', '");
+        query.push_str(&blog.tag);
         query.push_str("')");
         if let Err(_) = conn.query_drop(query) {
             return false;
@@ -100,20 +110,44 @@ pub mod database {
         true
     }
 
+    pub fn count_tags() -> Tags {
+        let mut tags = Tags {
+            test: 0,
+            note: 0,
+            blog: 0,
+            code: 0,
+        };
+        // 获取链接
+        let blog_url = "mysql://root:123212321@localhost:3306/myblog";
+        let pool = Pool::new(blog_url).unwrap();
+        let mut conn = pool.get_conn().unwrap();
+        // 查询
+        let res: Vec<String> = conn.query("select tag from blog").unwrap();
+        for tag in res {
+            let tag = tag.as_str();
+            match tag {
+                "test" => tags.test += 1,
+                "note" => tags.note += 1,
+                "blog" => tags.blog += 1,
+                "code" => tags.code += 1,
+                _ => {}
+            }
+        }
+        tags
+    }
+
     pub fn get_comment() -> Vec<Comment> {
         // 获取链接
         let blog_url = "mysql://root:123212321@localhost:3306/myblog";
         let pool = Pool::new(blog_url).unwrap();
         let mut conn = pool.get_conn().unwrap();
         // 查询
-        // let res: Vec<(String, String)> = conn.query("select id, name, descript from blog order by id").unwrap();
         let res = conn.query_map(
-            "select id, username, profile, mail, value from comment order by id",
-            |(id, username, profile, mail, value)| Comment {
+            "select id, username, url, value from comment order by id",
+            |(id, username, url, value)| Comment {
                 id,
                 username,
-                profile,
-                mail,
+                url,
                 value,
             },
         ).expect("Query failed.");

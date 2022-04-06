@@ -18,7 +18,7 @@ pub mod server {
         pub blog_name: String,
         pub desc: String,
         pub value: String,
-        // comments: Vec<comment>
+        pub tag: String,
     }
 
     /// root 路径测试
@@ -38,6 +38,7 @@ pub mod server {
         })
     }
 
+    /// 获取具体 blog
     #[get("/<blog_name>")]
     async fn get_blog(blog_name: String) -> Value {
         let res: String = database::database::get_blog(blog_name);
@@ -47,8 +48,15 @@ pub mod server {
         })
     }
 
-    #[get("/<blog_name>")]
-    async fn del_blog(blog_name: String) -> Value {
+    /// 根据 blog 名删除一个blog
+    #[get("/<blog_name>/<token>")]
+    async fn del_blog(blog_name: String, token: String) -> Value {
+        if String::from("pphui8") != token {
+            return json!({
+                "status": "failed",
+                "error": "wrong token",
+            })
+        }
         let res = database::database::delete_blog(blog_name);
         if res {
             json!({
@@ -56,11 +64,13 @@ pub mod server {
             })
         } else {
             json!({
-                "status": "failed"
+                "status": "failed",
+                "error": "fail to delete blog",
             })
         }
     }
 
+    /// 获取comment（全部）
     #[get("/")]
     async fn get_comment() -> Value {
         let res = database::database::get_comment();
@@ -69,13 +79,21 @@ pub mod server {
         })
     }
 
+    /// 获取归档
+    #[get("/")]
+    async fn get_filing() -> String {
+        let res = database::database::count_tags();
+        to_string(&res).unwrap()
+    }
+
+    /// 添加一个 blog
     #[post("/", format = "json", data = "<blog>")]
     async fn add_blog(blog: Json<Blog>) -> Value {
         let recv = blog.into_inner();
         if recv.token != String::from("pphui8")  {
             return json!({
                 "status": "failed",
-                "error": "failed to add blog"
+                "error": "wrong token"
             })
         }
         let res = database::database::add_blog(recv);
@@ -88,7 +106,6 @@ pub mod server {
                 "status": "failed"
             })
         }
-        
     }
 
     /// 404 处理函数
@@ -135,6 +152,7 @@ pub mod server {
             .mount("/index", routes![get_index])
             .mount("/blog", routes![get_blog])
             .mount("/delblog", routes![del_blog])
+            .mount("/filing", routes![get_filing])
             .mount("/comment", routes![get_comment])
             // post routers
             .mount("/addblog", routes![add_blog])
