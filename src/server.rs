@@ -21,6 +21,16 @@ pub mod server {
         pub tag: String,
     }
 
+    #[derive(Serialize, Deserialize, Clone, Debug)]
+    #[serde(crate = "rocket::serde")]
+    pub struct Comment {
+        pub token: String,
+        pub username: String,
+        pub url: String,
+        pub value: String,
+        pub time: String,
+    }
+
     /// root 路径测试
     #[get("/")]
     async fn index() -> Value {
@@ -72,11 +82,9 @@ pub mod server {
 
     /// 获取comment（全部）
     #[get("/")]
-    async fn get_comment() -> Value {
+    async fn get_comment() -> String {
         let res = database::database::get_comment();
-        json!({
-            "index": to_string(&res).unwrap()
-        })
+        to_string(&res).unwrap()
     }
 
     /// 获取归档
@@ -97,6 +105,28 @@ pub mod server {
             })
         }
         let res = database::database::add_blog(recv);
+        if res {
+            json!({
+                "status": "success"
+            })
+        } else {
+            json!({
+                "status": "failed"
+            })
+        }
+    }
+
+    /// 添加一个 comment
+    #[post("/", format = "json", data = "<comment>")]
+    async fn add_comment(comment: Json<Comment>) -> Value {
+        let recv = comment.into_inner();
+        if recv.token != String::from("pphui8")  {
+            return json!({
+                "status": "failed",
+                "error": "wrong token"
+            })
+        }
+        let res = database::database::add_comment(recv);
         if res {
             json!({
                 "status": "success"
@@ -156,6 +186,7 @@ pub mod server {
             .mount("/comment", routes![get_comment])
             // post routers
             .mount("/addblog", routes![add_blog])
+            .mount("/addcomment", routes![add_comment])
             // cathers
             .register("/", catchers![not_fount, unprocessable_entity, bad_request, internal_server_error])
             .launch()

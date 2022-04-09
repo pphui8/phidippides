@@ -7,6 +7,13 @@ pub mod database {
     use mysql::prelude::*;
     use rocket::serde::Serialize;
     use super::super::server::server::Blog;
+    use super::super::server::server::Comment as RecvComment;
+    use lazy_static::lazy_static;
+
+    static BLOG_URL: &str = "mysql://root:123212321@localhost:3306/myblog";
+    lazy_static! {
+        static ref SQLPOOL: mysql::Pool = Pool::new(BLOG_URL).unwrap();
+    }
 
     #[derive(Serialize, Debug)]
     pub struct Index {
@@ -22,6 +29,7 @@ pub mod database {
         username: String,
         url: String,
         value: String,
+        time: String,
     }
 
     #[derive(Serialize, Debug)]
@@ -35,9 +43,7 @@ pub mod database {
     /// 获取 blog 目录
     pub fn get_index() -> Vec<Index> {
         // 获取链接
-        let blog_url = "mysql://root:123212321@localhost:3306/myblog";
-        let pool = Pool::new(blog_url).unwrap();
-        let mut conn = pool.get_conn().unwrap();
+        let mut conn = SQLPOOL.get_conn().unwrap();
         // 查询
         let res = conn.query_map(
             "select id, name, descript, tag from blog order by id",
@@ -56,9 +62,7 @@ pub mod database {
     /// return: blog 的根url
     pub fn get_blog(blog_name: String) -> String {
         // 获取链接
-        let blog_url = "mysql://root:123212321@localhost:3306/myblog";
-        let pool = Pool::new(blog_url).unwrap();
-        let mut conn = pool.get_conn().unwrap();
+        let mut conn = SQLPOOL.get_conn().unwrap();
         // 查询
         let mut query = String::from("select article from blog where name=\"");
         query.push_str(&blog_name);
@@ -70,9 +74,7 @@ pub mod database {
 
     pub fn add_blog(blog: Blog) -> bool {
         // 获取链接
-        let blog_url = "mysql://root:123212321@localhost:3306/myblog";
-        let pool = Pool::new(blog_url).unwrap();
-        let mut conn = pool.get_conn().unwrap();
+        let mut conn = SQLPOOL.get_conn().unwrap();
         // 添加
         let mut query = String::new();
         query.push_str("INSERT INTO blog (name, descript, article, tag)\n");
@@ -94,9 +96,7 @@ pub mod database {
 
     pub fn delete_blog(name: String) -> bool {
         // 获取链接
-        let blog_url = "mysql://root:123212321@localhost:3306/myblog";
-        let pool = Pool::new(blog_url).unwrap();
-        let mut conn = pool.get_conn().unwrap();
+        let mut conn = SQLPOOL.get_conn().unwrap();
         // 添加
         let mut query = String::new();
         query.push_str("delete from blog\n");
@@ -118,9 +118,7 @@ pub mod database {
             code: 0,
         };
         // 获取链接
-        let blog_url = "mysql://root:123212321@localhost:3306/myblog";
-        let pool = Pool::new(blog_url).unwrap();
-        let mut conn = pool.get_conn().unwrap();
+        let mut conn = SQLPOOL.get_conn().unwrap();
         // 查询
         let res: Vec<String> = conn.query("select tag from blog").unwrap();
         for tag in res {
@@ -136,22 +134,44 @@ pub mod database {
         tags
     }
 
+    /// 获取评论（全部）
     pub fn get_comment() -> Vec<Comment> {
         // 获取链接
-        let blog_url = "mysql://root:123212321@localhost:3306/myblog";
-        let pool = Pool::new(blog_url).unwrap();
-        let mut conn = pool.get_conn().unwrap();
+        let mut conn = SQLPOOL.get_conn().unwrap();
         // 查询
         let res = conn.query_map(
-            "select id, username, url, value from comment order by id",
-            |(id, username, url, value)| Comment {
+            "select id, username, url, value, time from comment order by id",
+            |(id, username, url, value, time)| Comment {
                 id,
                 username,
                 url,
                 value,
+                time,
             },
         ).expect("Query failed.");
         res
+    }
+
+    pub fn add_comment(comment: RecvComment) -> bool {
+        // 获取链接
+        let mut conn = SQLPOOL.get_conn().unwrap();
+        // 添加
+        let mut query = String::new();
+        query.push_str("INSERT INTO comment (username, url, value, time)\n");
+        query.push_str("VALUES ('");
+        query.push_str(&comment.username);
+        query.push_str("', '");
+        query.push_str(&comment.url);
+        query.push_str("', '");
+        query.push_str(&comment.value);
+        query.push_str("', '");
+        query.push_str(&comment.time);
+        query.push_str("')");
+        if let Err(_) = conn.query_drop(query) {
+            return false;
+        }
+        // 返回结果
+        true
     }
 }
 

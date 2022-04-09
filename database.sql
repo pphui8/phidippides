@@ -26,8 +26,9 @@ CREATE TABLE IF NOT EXISTS `comment`(
    `username` VARCHAR(128),
    `url` VARCHAR(256),
    `value` VARCHAR(256),
+   `time` VARCHAR(128),
    PRIMARY KEY ( `id` )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO comment (username, url, value)
-VALUES ('pphui8', 'pphui8.me', 'comment test');
+INSERT INTO comment (username, url, value, time)
+VALUES ('pphui8', 'pphui8.me', 'comment test', '2022/4/7');
