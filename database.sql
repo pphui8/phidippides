@@ -21,6 +21,8 @@ VALUES ('前端学习笔记', '我的前端学习笔记，从html、css、js到j
 -- delete from blog
 -- where name="aaa";
 
+-- TRUNCATE TABLE comment;
+
 CREATE TABLE IF NOT EXISTS `comment`(
    `id` INT UNSIGNED AUTO_INCREMENT,
    `username` VARCHAR(128),

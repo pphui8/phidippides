@@ -173,6 +173,22 @@ pub mod database {
         // 返回结果
         true
     }
+
+    pub fn delete_comment(id: usize) -> bool {
+        // 获取链接
+        let mut conn = SQLPOOL.get_conn().unwrap();
+        // 添加
+        let mut query = String::new();
+        query.push_str("delete from comment\n");
+        query.push_str("where id=\"");
+        query.push_str(&id.to_string());
+        query.push_str("\"");
+        if let Err(_) = conn.query_drop(query) {
+            return false;
+        }
+        // 返回结果
+        true
+    }
 }
 
 #[cfg(test)]
@@ -190,10 +206,11 @@ mod database_tests {
     #[test]
     fn test_addblog() {
         let blog = Blog {
-            id: 1,
             blog_name: String::from("aaa"),
             desc: String::from("bbbbb"),
-            value: String::from("ccccc")
+            value: String::from("ccccc"),
+            token: String::from("pphui8"),
+            tag: String::from("test")
         };
         let res = add_blog(blog);
         assert_eq!(res, true);

@@ -10,6 +10,7 @@ pub mod server {
     use rocket::serde::{Serialize, Deserialize};
     use rocket::serde::json::{Json, Value};
     use super::super::database;
+    use super::super::sys_status;
 
     #[derive(Serialize, Deserialize, Clone, Debug)]
     #[serde(crate = "rocket::serde")]
@@ -87,6 +88,28 @@ pub mod server {
         to_string(&res).unwrap()
     }
 
+    /// 删除一个 comment（按id）
+    #[get("/<comment_id>/<token>")]
+    async fn del_comment(comment_id: usize, token: String) -> Value {
+        if String::from("pphui8") != token {
+            return json!({
+                "status": "failed",
+                "error": "wrong token",
+            })
+        }
+        let res = database::database::delete_comment(comment_id);
+        if res {
+            json!({
+                "status": "success"
+            })
+        } else {
+            json!({
+                "status": "failed",
+                "error": "fail to delete blog",
+            })
+        }
+    }
+
     /// 获取归档
     #[get("/")]
     async fn get_filing() -> String {
@@ -138,6 +161,12 @@ pub mod server {
         }
     }
 
+    #[get("/")]
+    async fn get_system() -> Value {
+        let res = sys_status::status::get_ram();
+        json!(res)
+    }
+
     /// 404 处理函数
     #[catch(404)]
     async fn not_fount() -> Value {
@@ -184,6 +213,8 @@ pub mod server {
             .mount("/delblog", routes![del_blog])
             .mount("/filing", routes![get_filing])
             .mount("/comment", routes![get_comment])
+            .mount("/delcomment", routes![del_comment])
+            .mount("/system", routes![get_system])
             // post routers
             .mount("/addblog", routes![add_blog])
             .mount("/addcomment", routes![add_comment])
