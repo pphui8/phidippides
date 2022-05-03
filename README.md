@@ -1,5 +1,3 @@
-# <font color="red">unfinished project</font>
-
 # phidippides
 > backend of huihuiblog
 

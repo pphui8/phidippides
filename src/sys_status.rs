@@ -1,3 +1,7 @@
+//! src/sys_status.rs
+//! 
+//! 通过 `free` 命令获取并返回系统信息
+
 pub mod status {
     use std::process::Command;
     use rocket::serde::{Serialize, Deserialize};

@@ -161,6 +161,7 @@ pub mod server {
         }
     }
 
+    /// 获取系统信息
     #[get("/")]
     async fn get_system() -> Value {
         let res = sys_status::status::get_ram();

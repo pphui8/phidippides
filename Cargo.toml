@@ -11,3 +11,9 @@ serde = { version = "*", features = ["derive"] }
 rocket = {version = "0.5.0-rc.1", features = ["json"]}
 mysql = "20.0.0"
 lazy_static = "1.4.0"
+
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+opt-level = 3
