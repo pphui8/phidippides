@@ -44,9 +44,10 @@ pub mod server {
     #[get("/")]
     async fn get_index() -> Value {
         let res = database::database::get_index();
-        json!({
-            "index": to_string(&res).unwrap()
-        })
+        // json!({
+        //     "index": to_string(&res).unwrap()
+        // })
+        json!(res)
     }
 
     /// 获取具体 blog
